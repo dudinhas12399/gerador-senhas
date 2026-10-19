@@ -1,77 +1,115 @@
-const numeroSenha = document.querySelector('.parametro-senha__texto');
-let tamanhoSenha = 12;
-numeroSenha.textContent = tamanhoSenha;
-const letrasMaiusculas = 'ABCDEFGHIJKLMNOPQRSTUVXYWZ';
-const letrasMinusculas = 'abcdefghijklmnopqrstuvxywz';
-const numeros = '0123456789';
-const simbolos = '!@%*?';
-const botoes = document.querySelectorAll('.parametro-senha__botao');
-const campoSenha = document.querySelector('#campo-senha');
-const checkbox = document.querySelectorAll('.checkbox');
-const forcaSenha = document.querySelector('.forca');
+const caixaPrincipal = document.querySelector(".caixa-principal");
+const caixaPerguntas = document.querySelector(".caixa-perguntas");
+const caixaAlternativas = document.querySelector(".caixa-alternativas");
+const caixaResultado = document.querySelector(".caixa-resultado");
+const textoResultado = document.querySelector(".texto-resultado");
 
-botoes[0].onclick = diminuiTamanho;
-botoes[1].onclick = aumentaTamanho;
+const perguntas = [
+  {
+    enunciado: "A cidade tem pouco dinheiro. Onde investir primeiro?",
+    alternativas: [
+      {
+        texto: "Educação.",
+        afirmacao: "As escolas foram reformadas e os alunos passaram a aprender mais."
+      },
+      {
+        texto: "Saúde.",
+        afirmacao: "Os postos receberam médicos e os moradores passaram a ser atendidos melhor."
 
-function diminuiTamanho() {
-    if (tamanhoSenha > 1) {
-        // tamanhoSenha = tamanhoSenha-1;
-        tamanhoSenha--;
-    }
-    numeroSenha.textContent = tamanhoSenha;
-    geraSenha();
+      }
+    ]
+  },
+  {
+    enunciado: "A cidade enfrenta falta de água.",
+    alternativas: [
+      {
+        texto: "Investir em infraestrutura.",
+        afirmacao: "Novos reservatórios ajudaram a levar água para mais casas."
+      },
+      {
+        texto: "Criar campanhas de conscientização.",
+        afirmacao: "Os moradores aprenderam a economizar água e evitar desperdícios."
+      }
+    ]
+  },
+  {
+    enunciado: "Há muito lixo nas ruas.",
+    alternativas: [
+      {
+        texto: "Aumentar a coleta.",
+        afirmacao: "Mais caminhões recolheram o lixo e deixaram as ruas limpas."
+      },
+      {
+        texto: "Investir em reciclagem.",
+        afirmacao: "Os moradores começaram a reciclar e produzir menos lixo."
+      }
+    ]
+  },
+  {
+    enunciado: "O trânsito está piorando.",
+    alternativas: [
+      {
+        texto: " Melhorar o transporte público.",
+        afirmacao: "Mais ônibus nas ruas ajudaram a diminuir o trânsito."
+      },
+      {
+        texto: "Construir novas vias.",
+        afirmacao: "As novas ruas melhoraram o trânsito por algum tempo."
+      }
+    ]
+
+  },
+  {
+    enunciado: "Depois de quatro anos:",
+    alternativas: [
+      {
+        texto: " A cidade ficou mais sustentável.",
+        afirmacao: "A cidade ficou mais limpa e passou a economizar água."
+      },
+      {
+        texto: "A cidade melhorou economicamente, mas ainda enfrenta problemas ambientais.",
+        afirmacao: "A cidade gerou empregos, mas a poluição aumentou."
+
+      }
+    ]
+  },
+];
+
+let atual = 0;
+let perguntaAtual;
+let historiaFinal = "";
+
+function mostraPergunta() {
+  if (atual>= perguntas.length){
+mostraResultado ();
+return;
+  }
+  perguntaAtual = perguntas[atual];
+  caixaPerguntas.textContent = perguntaAtual.enunciado
+  caixaAlternativas.textContent = "";
+  mostraAlternativas();
 }
-function aumentaTamanho() {
-    if (tamanhoSenha < 20) {
-        // tamanhoSenha = tamanhoSenha+1;
-        tamanhoSenha++;
-    }
-    numeroSenha.textContent = tamanhoSenha;
-    geraSenha();
+
+function mostraAlternativas() {
+  for (const alternativa of perguntaAtual.alternativas) {
+    const botaoAlternativa = document.createElement("button");
+    botaoAlternativa.textContent = alternativa.texto;
+    botaoAlternativa.addEventListener("click", () => respostaSelecionada(alternativa))
+    caixaAlternativas.appendChild(botaoAlternativa);
+  }
+}
+function respostaSelecionada(opcaoSelecionada) {
+  const afirmacao = opcaoSelecionada.afirmacao;
+  historiaFinal += afirmacao + " ";
+  atual++;
+  mostraPergunta();
 }
 
-for (i = 0; i < checkbox.length; i++) {
-    checkbox[i].onclick = geraSenha;
+function mostraResultado(){
+  caixaPerguntas.textContent = "Em 2030 ...";
+  textoResultado.textContent = historiaFinal;
+  caixaAlternativas.textContent = "";
 }
 
-geraSenha();
 
-function geraSenha() {
-    let alfabeto = '';
-    if (checkbox[0].checked) {
-        alfabeto = alfabeto + letrasMaiusculas;
-    }
-    if (checkbox[1].checked) {
-        alfabeto = alfabeto + letrasMinusculas;
-    }
-    if (checkbox[2].checked) {
-        alfabeto = alfabeto + numeros;
-    }
-    if (checkbox[3].checked) {
-        alfabeto = alfabeto + simbolos;
-    }
-    let senha = '';
-    for (let i = 0; i < tamanhoSenha; i++) {
-        let numeroAleatorio = Math.random() * alfabeto.length;
-        numeroAleatorio = Math.floor(numeroAleatorio);
-        senha = senha + alfabeto[numeroAleatorio];
-    }
-    campoSenha.value = senha;
-    classificaSenha(alfabeto.length);
-
-}
-
-function classificaSenha(tamanhoAlfabeto) {
-    let entropia = tamanhoSenha * Math.log2(tamanhoAlfabeto);
-    console.log(entropia);
-    forcaSenha.classList.remove('fraca', 'media', 'forte');
-    if (entropia > 57) {
-        forcaSenha.classList.add('forte');
-    } else if (entropia > 35 && entropia < 57) {
-        forcaSenha.classList.add('media');
-    } else if (entropia <= 35) {
-        forcaSenha.classList.add('fraca');
-    }
-    const valorEntropia = document.querySelector('.entropia');
-    valorEntropia.textContent = "Um computador pode levar até " + Math.floor(2 ** entropia / (100e6 * 60 * 60 * 24)) + " dias para descobrir essa senha.";
-}
+mostraPergunta();
